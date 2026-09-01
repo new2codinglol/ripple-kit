@@ -220,9 +220,9 @@ export default function Home() {
             </h2>
           </Reveal>
 
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            <Reveal>
-              <div className="glass-dim h-full rounded-3xl p-5">
+          <div className="mt-8 grid min-w-0 gap-4 lg:grid-cols-2">
+            <Reveal className="min-w-0">
+              <div className="glass-dim h-full min-w-0 rounded-3xl p-5">
                 <p className="text-[13px] font-extrabold text-ink-soft">By hand</p>
                 <pre className="mt-3 overflow-x-auto font-mono text-[12px] leading-relaxed text-ink/75">
 {`const [x, setX] = useState(0);
@@ -244,8 +244,8 @@ onPointerUp    → const dt = Date.now() - t0.current;
               </div>
             </Reveal>
 
-            <Reveal delay={0.06}>
-              <div className="glass gloss relative h-full rounded-3xl p-5">
+            <Reveal delay={0.06} className="min-w-0">
+              <div className="glass gloss relative h-full min-w-0 rounded-3xl p-5">
                 <p className="relative z-10 text-[13px] font-extrabold text-aqua-deep">
                   With Ripple Kit
                 </p>
