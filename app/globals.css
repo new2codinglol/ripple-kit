@@ -279,3 +279,21 @@ body:has([data-skin="linear"]) { background: #08090a; }
 
 [data-skin="linear"] code,
 [data-skin="linear"] pre { color: var(--mist); }
+
+/* Three demo cards in a two-column grid leaves an orphan sitting next to a
+   hole. Linear's own pattern is a stack of wide feature panels, so under
+   this skin the demos become full-width rows split into copy and demo. */
+@media (min-width: 1024px) {
+  [data-skin="linear"] .demo-grid { grid-template-columns: minmax(0, 1fr); }
+  [data-skin="linear"] .demo-grid article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    grid-template-areas: "head demo" "note demo";
+    align-items: center;
+    column-gap: 2.5rem;
+    padding: 1.75rem 2rem;
+  }
+  [data-skin="linear"] .demo-grid article > *:nth-child(1) { grid-area: head; }
+  [data-skin="linear"] .demo-grid article > *:nth-child(2) { grid-area: demo; margin: 0; }
+  [data-skin="linear"] .demo-grid article > *:nth-child(3) { grid-area: note; margin-top: 0.6rem; }
+}
