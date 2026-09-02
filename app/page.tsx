@@ -1,5 +1,9 @@
-import { Shell } from "./_c/Shell";
+import { Landing } from "./_c/Landing";
 
 export default function Page() {
-  return <Shell palette="sky" />;
+  return (
+    <div className="ground relative">
+      <Landing />
+    </div>
+  );
 }

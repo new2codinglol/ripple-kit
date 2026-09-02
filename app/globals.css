@@ -14,43 +14,17 @@
   --color-mint: var(--p-glow);
 }
 
-/* ---- palettes ---------------------------------------------------------
-   Every hue in the build resolves through these eight tokens, so a whole
-   palette is one selector. The near-black ink stays across all of them —
-   that anchor is what fixed the pale-on-pale problem, not the hue. */
+/* ---- palette -----------------------------------------------------------
+   Sand. Every hue in the build resolves through these tokens, so the whole
+   palette is one block. Chosen over jade and violet: it is the only one of
+   the three that does not read as a software company picking a brand colour,
+   the bubbles become pearls rather than tinted glass, and it is the least
+   saturated ground, so the demo cards stay distinct surfaces instead of
+   dissolving into it. Near-black ink is the anchor and does not vary.
+   After the xAI brief: never pure black, one hairline ring, no chromatic
+   buttons. */
 
-:root,
-[data-palette="sky"] {
-  --p-ink: #0b0f14;
-  --p-ink-soft: #55606c;
-  --p-accent: #25a6f0;
-  --p-accent-deep: #0d7fc4;
-  --p-rim: #7fc9ef;
-  --p-glow: #16b98d;
-  --p-g1: #9fd8f7;
-  --p-g2: #dff1fd;
-  --p-panel: 207, 234, 255;
-  --p-bub-mid: 150, 216, 252;
-  --p-bub-out: 37, 166, 240;
-  --p-bub-shadow: 11, 61, 99;
-}
-
-[data-palette="jade"] {
-  --p-ink: #0b0f14;
-  --p-ink-soft: #55606c;
-  --p-accent: #0e9f78;
-  --p-accent-deep: #0a7a5c;
-  --p-rim: #7fd8bd;
-  --p-glow: #16b98d;
-  --p-g1: #a8e6d0;
-  --p-g2: #e2f7ef;
-  --p-panel: 214, 245, 234;
-  --p-bub-mid: 150, 226, 200;
-  --p-bub-out: 14, 159, 120;
-  --p-bub-shadow: 8, 74, 57;
-}
-
-[data-palette="sand"] {
+:root {
   --p-ink: #0a0a0a;
   --p-ink-soft: #545454;
   --p-accent: #e8483f;
@@ -63,21 +37,6 @@
   --p-bub-mid: 236, 224, 205;
   --p-bub-out: 194, 160, 110;
   --p-bub-shadow: 84, 70, 50;
-}
-
-[data-palette="violet"] {
-  --p-ink: #0b0f14;
-  --p-ink-soft: #55606c;
-  --p-accent: #6d4aff;
-  --p-accent-deep: #4a2fc7;
-  --p-rim: #c0b2fb;
-  --p-glow: #9b7bff;
-  --p-g1: #ded8fb;
-  --p-g2: #efecfe;
-  --p-panel: 233, 229, 253;
-  --p-bub-mid: 202, 190, 250;
-  --p-bub-out: 109, 74, 255;
-  --p-bub-shadow: 48, 32, 110;
 }
 
 :root {
