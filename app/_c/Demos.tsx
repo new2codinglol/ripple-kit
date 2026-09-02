@@ -170,13 +170,14 @@ export function ScrollRing() {
   return (
     <div ref={ref} className="relative grid h-[136px] place-items-center">
       <svg viewBox="0 0 100 100" className="h-[104px] w-[104px] -rotate-90" aria-hidden>
-        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(127,201,239,.5)" strokeWidth="7" />
+        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--p-rim)"
+          strokeOpacity="0.55" strokeWidth="7" />
         <motion.circle
           cx="50"
           cy="50"
           r="42"
           fill="none"
-          stroke="var(--color-aqua)"
+          stroke="var(--p-accent)"
           strokeWidth="7"
           strokeLinecap="round"
           style={{ strokeDasharray: dash }}
@@ -240,16 +241,19 @@ export function Bubbles() {
      slower; the near ones travel further. Nothing shares a duration, so the
      group never pulses in time with itself. */
   const bubbles = [
-    { cls: "left-[4%] top-[12%] h-44 w-44", dx: "46px", dy: "104px", dur: "17s", delay: "0s", o: 0.8 },
+    { cls: "left-[4%] top-[12%] h-44 w-44", dx: "46px", dy: "82px", dur: "17s", delay: "0s", o: 0.8 },
     { cls: "right-[8%] top-[6%] h-28 w-28", dx: "-38px", dy: "76px", dur: "13s", delay: "-4s", o: 0.7 },
     { cls: "left-[34%] bottom-[4%] h-20 w-20", dx: "30px", dy: "62px", dur: "11s", delay: "-7s", o: 0.62 },
     { cls: "right-[26%] bottom-[16%] h-14 w-14", dx: "-26px", dy: "54px", dur: "9s", delay: "-2s", o: 0.55 },
     { cls: "left-[18%] top-[54%] h-10 w-10", dx: "22px", dy: "44px", dur: "8s", delay: "-5s", o: 0.5 },
-    { cls: "right-[2%] top-[44%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "88px", dur: "21s", delay: "-9s", o: 0.42 },
+    { cls: "right-[2%] top-[44%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "74px", dur: "21s", delay: "-9s", o: 0.42 },
   ];
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    /* Inset below the sticky nav band so the largest spheres are not born
+       underneath it; the nav is frosted rather than opaque, so the ones that
+       do drift up read through it instead of vanishing. */
+    <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 top-16 overflow-hidden">
       {bubbles.map((b, i) => (
         <span
           key={i}
