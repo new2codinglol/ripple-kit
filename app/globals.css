@@ -66,12 +66,14 @@ body {
   min-height: 100dvh;
 }
 
-/* fine grain so the gradient does not read as a flat CSS wash */
+/* Fine grain over the whole ground. Above the shader canvas and the pearls
+   (both z-0) but below the page content (z-10), so it reads as one surface
+   rather than a layer of its own. */
 .ground::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   opacity: 0.5;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
@@ -281,19 +283,45 @@ body:has([data-skin="linear"]) { background: #08090a; }
 [data-skin="linear"] pre { color: var(--mist); }
 
 /* Three demo cards in a two-column grid leaves an orphan sitting next to a
-   hole. Linear's own pattern is a stack of wide feature panels, so under
-   this skin the demos become full-width rows split into copy and demo. */
+   hole. Linear's own pattern is a stack of wide feature panels, so under this
+   skin the demos become full-width rows split into copy and demo.
+
+   The first pass inherited two things from the narrow-card layout that do not
+   survive the stretch to 580px: the title and the hook name were pushed to
+   opposite ends of the row by justify-between, so the hook name floated in
+   the middle of nothing; and centring each text row independently against a
+   tall demo opened a void between the title and the note. Rows are now sized
+   to their content and centred as one block, and the demo column is a fixed
+   width so all three rows share an edge. */
 @media (min-width: 1024px) {
   [data-skin="linear"] .demo-grid { grid-template-columns: minmax(0, 1fr); }
+
   [data-skin="linear"] .demo-grid article {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-rows: min-content min-content;
     grid-template-areas: "head demo" "note demo";
+    align-content: center;
     align-items: center;
-    column-gap: 2.5rem;
-    padding: 1.75rem 2rem;
+    column-gap: 3.5rem;
+    padding: 2rem 2.25rem;
   }
-  [data-skin="linear"] .demo-grid article > *:nth-child(1) { grid-area: head; }
-  [data-skin="linear"] .demo-grid article > *:nth-child(2) { grid-area: demo; margin: 0; }
-  [data-skin="linear"] .demo-grid article > *:nth-child(3) { grid-area: note; margin-top: 0.6rem; }
+
+  /* title and hook name belong next to each other, not 400px apart */
+  [data-skin="linear"] .demo-grid article > *:nth-child(1) {
+    grid-area: head;
+    justify-content: flex-start;
+    gap: 0.9rem;
+  }
+  [data-skin="linear"] .demo-grid article > *:nth-child(2) {
+    grid-area: demo;
+    margin: 0;
+    width: 100%;
+    justify-self: end;
+  }
+  [data-skin="linear"] .demo-grid article > *:nth-child(3) {
+    grid-area: note;
+    margin-top: 0.7rem;
+    max-width: 54ch;
+  }
 }

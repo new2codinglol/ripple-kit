@@ -283,8 +283,14 @@ return <div {...card} className="card" />;`}
             <p className="relative z-10 mx-auto mt-3 max-w-md text-ink-soft">
               One install, nine hooks, and the defaults are the part you were going to get wrong.
             </p>
-            <div className="relative z-10 mt-8 flex justify-center">
+            <div className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-3">
               <CopyInstall command="npm i ripplekit" />
+              <a
+                href="https://github.com/new2codinglol/ripple-kit"
+                className="btn glass-dim px-5 py-3 text-sm font-extrabold"
+              >
+                Read the source
+              </a>
             </div>
           </div>
         </Reveal>
