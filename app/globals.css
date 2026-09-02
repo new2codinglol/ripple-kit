@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-nunito), ui-rounded, "Segoe UI", system-ui, sans-serif;
+  /* Sora, not Nunito: same humanist warmth Aero asks for, without Nunito's
+   uniformly bubbly terminals — this is a dev tool, not a kids' app. Kept out
+   of Inter/Space Grotesk on purpose, same as before; /linear keeps Inter
+   because it is a deliberate copy of a foreign brief, not this page's own
+   voice. */
+  --font-sans: var(--font-sora), ui-sans-serif, "Segoe UI", system-ui, sans-serif;
   --font-mono: var(--font-mono-jb), ui-monospace, monospace;
 
   /* Near-black ink, not blue-grey. Pale type on a pale ground was the whole

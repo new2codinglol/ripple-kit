@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Nunito, JetBrains_Mono } from "next/font/google";
+import { Inter, Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
+const sora = Sora({
   subsets: ["latin"],
-  variable: "--font-nunito",
-  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-sora",
+  weight: ["400", "600", "700", "800"],
 });
 
 const mono = JetBrains_Mono({
@@ -30,7 +30,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${nunito.variable} ${mono.variable} ${inter.variable}`}>
+    <html lang="en" className={`${sora.variable} ${mono.variable} ${inter.variable}`}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   );
