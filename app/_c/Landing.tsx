@@ -1,5 +1,4 @@
 import {
-  Bubbles,
   CopyInstall,
   DragToDismiss,
   Magnetic,
@@ -107,7 +106,6 @@ export function Landing() {
 
       {/* --------------------------------------------------------- hero */}
       <section id="top" className="relative px-4 pb-20 pt-16 sm:pt-24">
-        <Bubbles />
         <div className="relative mx-auto max-w-3xl text-center">
           <p className="rise glass-dim mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold">
             <span className="h-1.5 w-1.5 rounded-full bg-mint" />

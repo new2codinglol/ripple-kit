@@ -237,23 +237,38 @@ export function Magnetic() {
 /* --------------------------------------------------------------------- */
 
 export function Bubbles() {
-  /* Six, not three, at mixed sizes and depths. The far ones are blurred and
-     slower; the near ones travel further. Nothing shares a duration, so the
-     group never pulses in time with itself. */
+  /* Viewport-fixed, not parented to the hero. An absolutely positioned layer
+     scrolls up through the sticky nav and gets hard-clipped along the pill's
+     edge — frosting the nav does not help, a pale sphere behind 62% white and
+     an 18px blur is simply gone. Fixed to the viewport instead, with a mask
+     that is fully transparent across the nav band, so a bubble fades out
+     before it can reach it. Opacity is driven by scroll so the whole layer
+     retires with the hero rather than following you down the page. */
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 420, 780], [1, 0.85, 0]);
+
   const bubbles = [
-    { cls: "left-[4%] top-[12%] h-44 w-44", dx: "46px", dy: "82px", dur: "17s", delay: "0s", o: 0.8 },
-    { cls: "right-[8%] top-[6%] h-28 w-28", dx: "-38px", dy: "76px", dur: "13s", delay: "-4s", o: 0.7 },
-    { cls: "left-[34%] bottom-[4%] h-20 w-20", dx: "30px", dy: "62px", dur: "11s", delay: "-7s", o: 0.62 },
-    { cls: "right-[26%] bottom-[16%] h-14 w-14", dx: "-26px", dy: "54px", dur: "9s", delay: "-2s", o: 0.55 },
-    { cls: "left-[18%] top-[54%] h-10 w-10", dx: "22px", dy: "44px", dur: "8s", delay: "-5s", o: 0.5 },
-    { cls: "right-[2%] top-[44%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "74px", dur: "21s", delay: "-9s", o: 0.42 },
+    { cls: "left-[4%] top-[16%] h-44 w-44", dx: "46px", dy: "82px", dur: "17s", delay: "0s", o: 0.8 },
+    { cls: "right-[8%] top-[10%] h-28 w-28", dx: "-38px", dy: "76px", dur: "13s", delay: "-4s", o: 0.7 },
+    { cls: "left-[34%] bottom-[18%] h-20 w-20", dx: "30px", dy: "62px", dur: "11s", delay: "-7s", o: 0.62 },
+    { cls: "right-[26%] bottom-[26%] h-14 w-14", dx: "-26px", dy: "54px", dur: "9s", delay: "-2s", o: 0.55 },
+    { cls: "left-[18%] top-[58%] h-10 w-10", dx: "22px", dy: "44px", dur: "8s", delay: "-5s", o: 0.5 },
+    { cls: "right-[2%] top-[46%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "74px", dur: "21s", delay: "-9s", o: 0.42 },
   ];
 
+  const fade =
+    "linear-gradient(to bottom, transparent 0px, transparent 84px, rgba(0,0,0,.55) 130px, #000 190px)";
+
   return (
-    /* Inset below the sticky nav band so the largest spheres are not born
-       underneath it; the nav is frosted rather than opaque, so the ones that
-       do drift up read through it instead of vanishing. */
-    <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 top-16 overflow-hidden">
+    <motion.div
+      aria-hidden
+      style={{
+        opacity,
+        maskImage: fade,
+        WebkitMaskImage: fade,
+      }}
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+    >
       {bubbles.map((b, i) => (
         <span
           key={i}
@@ -269,6 +284,6 @@ export function Bubbles() {
           }
         />
       ))}
-    </div>
+    </motion.div>
   );
 }
