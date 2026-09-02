@@ -5,6 +5,7 @@ import {
   Reveal,
   ScrollRing,
 } from "./Demos";
+import { Mechanism } from "./Mechanism";
 
 const PRIMITIVES = [
   {
@@ -189,11 +190,12 @@ export function Landing() {
               Nine hooks. Six worth naming.
             </h2>
             <p className="mt-2 max-w-xl text-ink-soft">
-              Each one is independently importable. Import two, ship two.
+              Each one is independently importable — import two, ship two. The diagram on each
+              card is the decision the hook makes for you.
             </p>
           </Reveal>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PRIMITIVES.map((p, i) => (
               <Reveal key={p.name} delay={i * 0.05}>
                 <div className="glass-dim h-full rounded-3xl p-5">
@@ -201,7 +203,10 @@ export function Landing() {
                     <code className="font-mono text-sm font-bold text-aqua-deep">{p.name}</code>
                     <span className="font-mono text-[11px] text-ink-soft">{p.size}</span>
                   </div>
-                  <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{p.line}</p>
+                  <div className="my-4">
+                    <Mechanism id={p.name} />
+                  </div>
+                  <p className="mt-auto text-[13px] leading-relaxed text-ink-soft">{p.line}</p>
                 </div>
               </Reveal>
             ))}
