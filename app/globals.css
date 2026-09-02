@@ -1,17 +1,83 @@
 @import "tailwindcss";
 
-@theme {
+@theme inline {
   --font-sans: var(--font-nunito), ui-rounded, "Segoe UI", system-ui, sans-serif;
   --font-mono: var(--font-mono-jb), ui-monospace, monospace;
 
   /* Near-black ink, not blue-grey. Pale type on a pale ground was the whole
      problem — body copy went from about 4.8:1 to 13:1 on this change. */
-  --color-ink: #0b0f14;
-  --color-ink-soft: #55606c;
-  --color-aqua: #25a6f0;
-  --color-aqua-deep: #0d7fc4;
-  --color-rim: #7fc9ef;
-  --color-mint: #16b98d;
+  --color-ink: var(--p-ink);
+  --color-ink-soft: var(--p-ink-soft);
+  --color-aqua: var(--p-accent);
+  --color-aqua-deep: var(--p-accent-deep);
+  --color-rim: var(--p-rim);
+  --color-mint: var(--p-glow);
+}
+
+/* ---- palettes ---------------------------------------------------------
+   Every hue in the build resolves through these eight tokens, so a whole
+   palette is one selector. The near-black ink stays across all of them —
+   that anchor is what fixed the pale-on-pale problem, not the hue. */
+
+:root,
+[data-palette="sky"] {
+  --p-ink: #0b0f14;
+  --p-ink-soft: #55606c;
+  --p-accent: #25a6f0;
+  --p-accent-deep: #0d7fc4;
+  --p-rim: #7fc9ef;
+  --p-glow: #16b98d;
+  --p-g1: #9fd8f7;
+  --p-g2: #dff1fd;
+  --p-panel: 207, 234, 255;
+  --p-bub-mid: 150, 216, 252;
+  --p-bub-out: 37, 166, 240;
+  --p-bub-shadow: 11, 61, 99;
+}
+
+[data-palette="jade"] {
+  --p-ink: #0b0f14;
+  --p-ink-soft: #55606c;
+  --p-accent: #0e9f78;
+  --p-accent-deep: #0a7a5c;
+  --p-rim: #7fd8bd;
+  --p-glow: #16b98d;
+  --p-g1: #a8e6d0;
+  --p-g2: #e2f7ef;
+  --p-panel: 214, 245, 234;
+  --p-bub-mid: 150, 226, 200;
+  --p-bub-out: 14, 159, 120;
+  --p-bub-shadow: 8, 74, 57;
+}
+
+[data-palette="sand"] {
+  --p-ink: #0a0a0a;
+  --p-ink-soft: #545454;
+  --p-accent: #e8483f;
+  --p-accent-deep: #b9302a;
+  --p-rim: #d5d9e2;
+  --p-glow: #c2761f;
+  --p-g1: #ece3d4;
+  --p-g2: #f9f8f6;
+  --p-panel: 249, 248, 246;
+  --p-bub-mid: 236, 224, 205;
+  --p-bub-out: 194, 160, 110;
+  --p-bub-shadow: 84, 70, 50;
+}
+
+[data-palette="violet"] {
+  --p-ink: #0b0f14;
+  --p-ink-soft: #55606c;
+  --p-accent: #6d4aff;
+  --p-accent-deep: #4a2fc7;
+  --p-rim: #c0b2fb;
+  --p-glow: #9b7bff;
+  --p-g1: #ded8fb;
+  --p-g2: #efecfe;
+  --p-panel: 233, 229, 253;
+  --p-bub-mid: 202, 190, 250;
+  --p-bub-out: 109, 74, 255;
+  --p-bub-shadow: 48, 32, 110;
 }
 
 :root {
@@ -27,17 +93,22 @@ html {
 
 body {
   color: var(--color-ink);
-  background:
-    radial-gradient(120% 80% at 80% -10%, #ffffff 0%, transparent 52%),
-    linear-gradient(160deg, #9fd8f7 0%, #dff1fd 56%, #ffffff 100%);
-  background-attachment: fixed;
   min-height: 100dvh;
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
 }
 
+.ground {
+  color: var(--p-ink);
+  background:
+    radial-gradient(120% 80% at 80% -10%, #ffffff 0%, transparent 52%),
+    linear-gradient(160deg, var(--p-g1) 0%, var(--p-g2) 56%, #ffffff 100%);
+  background-attachment: fixed;
+  min-height: 100dvh;
+}
+
 /* fine grain so the gradient does not read as a flat CSS wash */
-body::before {
+.ground::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -51,7 +122,7 @@ body::before {
 /* ---- Aero surfaces ---------------------------------------------------- */
 
 .glass {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(207, 234, 255, 0.78));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(var(--p-panel), 0.78));
   border: 0;
   box-shadow:
     0 0 0 1px rgba(11, 15, 20, 0.1),
@@ -59,8 +130,16 @@ body::before {
   backdrop-filter: blur(14px) saturate(1.3);
 }
 
+.glass-nav {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(var(--p-panel), 0.42));
+  box-shadow:
+    0 0 0 1px rgba(11, 15, 20, 0.08),
+    0 14px 34px -26px rgba(11, 15, 20, 0.4);
+  backdrop-filter: blur(18px) saturate(1.5);
+}
+
 .glass-dim {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(207, 234, 255, 0.4));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(var(--p-panel), 0.4));
   border: 0;
   box-shadow: 0 0 0 1px rgba(11, 15, 20, 0.08);
   backdrop-filter: blur(10px);
@@ -93,8 +172,8 @@ body::before {
 }
 
 .btn-primary {
-  background: var(--color-ink);
-  color: #f6fbff;
+  background: var(--p-ink);
+  color: #f9fbfc;
   box-shadow: 0 10px 22px -14px rgba(11, 15, 20, 0.7);
 }
 
@@ -125,10 +204,10 @@ body::before {
   --dy: 80px;
   position: absolute;
   border-radius: 999px;
-  background: radial-gradient(at 30% 26%, rgba(255, 255, 255, 0.98), rgba(150, 216, 252, 0.6) 44%, rgba(37, 166, 240, 0.2) 74%);
+  background: radial-gradient(at 30% 26%, rgba(255, 255, 255, 0.98), rgba(var(--p-bub-mid), 0.6) 44%, rgba(var(--p-bub-out), 0.2) 74%);
   box-shadow:
-    0 26px 60px -26px rgba(11, 61, 99, 0.55),
-    inset -6px -10px 22px -12px rgba(13, 127, 196, 0.55);
+    0 26px 60px -26px rgba(var(--p-bub-shadow), 0.55),
+    inset -6px -10px 22px -12px rgba(var(--p-bub-out), 0.5);
   animation: float var(--dur, 16s) var(--ease-in-out) infinite;
   will-change: transform;
   pointer-events: none;
