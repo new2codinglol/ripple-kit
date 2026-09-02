@@ -163,7 +163,7 @@ export function Landing() {
             </p>
           </Reveal>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="demo-grid mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {DEMOS.map((d, i) => (
               <Reveal key={d.hook} delay={i * 0.06}>
                 <article className="glass gloss relative flex h-full flex-col rounded-[26px] p-5">
@@ -195,7 +195,7 @@ export function Landing() {
             </p>
           </Reveal>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="prim-grid mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {PRIMITIVES.map((p, i) => (
               <Reveal key={p.name} delay={i * 0.05}>
                 <div className="glass-dim h-full rounded-3xl p-5">

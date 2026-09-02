@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, JetBrains_Mono } from "next/font/google";
+import { Inter, Nunito, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -14,6 +14,12 @@ const mono = JetBrains_Mono({
   weight: ["400", "500", "700"],
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["300", "400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "Ripple Kit — scroll and gesture primitives for React",
   description:
@@ -24,7 +30,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${nunito.variable} ${mono.variable}`}>
+    <html lang="en" className={`${nunito.variable} ${mono.variable} ${inter.variable}`}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   );
