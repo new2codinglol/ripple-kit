@@ -236,17 +236,35 @@ export function Magnetic() {
 /* --------------------------------------------------------------------- */
 
 export function Bubbles() {
+  /* Six, not three, at mixed sizes and depths. The far ones are blurred and
+     slower; the near ones travel further. Nothing shares a duration, so the
+     group never pulses in time with itself. */
+  const bubbles = [
+    { cls: "left-[4%] top-[12%] h-44 w-44", dx: "46px", dy: "104px", dur: "17s", delay: "0s", o: 0.8 },
+    { cls: "right-[8%] top-[6%] h-28 w-28", dx: "-38px", dy: "76px", dur: "13s", delay: "-4s", o: 0.7 },
+    { cls: "left-[34%] bottom-[4%] h-20 w-20", dx: "30px", dy: "62px", dur: "11s", delay: "-7s", o: 0.62 },
+    { cls: "right-[26%] bottom-[16%] h-14 w-14", dx: "-26px", dy: "54px", dur: "9s", delay: "-2s", o: 0.55 },
+    { cls: "left-[18%] top-[54%] h-10 w-10", dx: "22px", dy: "44px", dur: "8s", delay: "-5s", o: 0.5 },
+    { cls: "right-[2%] top-[44%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "88px", dur: "21s", delay: "-9s", o: 0.42 },
+  ];
+
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <span className="bubble left-[6%] top-[14%] h-40 w-40 opacity-70" />
-      <span
-        className="bubble right-[10%] top-[8%] h-24 w-24 opacity-60"
-        style={{ animationDelay: "-3.5s" }}
-      />
-      <span
-        className="bubble bottom-[6%] left-[38%] h-16 w-16 opacity-50"
-        style={{ animationDelay: "-7s" }}
-      />
+      {bubbles.map((b, i) => (
+        <span
+          key={i}
+          className={`bubble ${b.cls}`}
+          style={
+            {
+              "--dx": b.dx,
+              "--dy": b.dy,
+              "--dur": b.dur,
+              animationDelay: b.delay,
+              opacity: b.o,
+            } as React.CSSProperties
+          }
+        />
+      ))}
     </div>
   );
 }
