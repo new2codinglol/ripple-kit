@@ -54,10 +54,15 @@ const GLOW_RADIUS = 600;
 const GLOW_BASE = 0.02;
 const GLOW_ENERGY_MAX = 0.11;
 
-// Off-centre and grey throughout — no chroma, matching the rings. Reads as
-// one light source on a dark surface rather than a flat void.
+// Off-centre and grey throughout — no chroma, matching the rings. First pass
+// used three near-blacks about 18 RGB points apart end to end (#1a1d21 →
+// #101214 → #08090a) — correct in principle, invisible in practice on a
+// real screen; "restrained" had crossed into "not actually there". This
+// spans the skin's own lighter token down to true void instead — smoke at
+// the corner, all the way to void — so the light source reads as an actual
+// light source rather than a note in the source explaining one.
 const BASE_GRADIENT =
-  "radial-gradient(135% 105% at 80% -10%, #1a1d21 0%, #101214 36%, #08090a 70%)";
+  "radial-gradient(140% 110% at 82% -12%, #383b3f 0%, #1c1f22 38%, #08090a 72%)";
 
 export function LinearBackdrop() {
   const reduced = useReducedMotion();
