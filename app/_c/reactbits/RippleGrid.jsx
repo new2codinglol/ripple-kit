@@ -1,8 +1,12 @@
 /* React Bits — Backgrounds/RippleGrid, copied from
    github.com/DavidHDev/react-bits at src/content/Backgrounds/RippleGrid.
    Source copied in rather than added as a dependency, per the build rule.
-   Only change from upstream: the "use client" directive, which the App
-   Router needs and the original (a Vite app) did not. */
+   Changes from upstream: the "use client" directive, which the App Router
+   needs and the original (a Vite app) did not; and one line in the fragment
+   shader, noted where it happens below — the line brightness pulse traded a
+   global sin(iTime) for the same dist-aware wave that already drives the
+   grid's own displacement, so the glow rides the ripple outward from centre
+   instead of flashing the whole grid in place. */
 'use client';
 
 import { useRef, useEffect } from 'react';
@@ -120,7 +124,11 @@ void main() {
     );
 
     vec3 color = vec3(0.0);
-    color += exp(-gridThickness * smoothB.x * (0.8 + 0.5 * sin(pi * iTime)));
+    // was: 0.5 * sin(pi * iTime) — a pulse with no spatial term, so every
+    // line on screen brightened and dimmed in lockstep. func already carries
+    // (iTime - dist), the same phase driving rippleUv above, so reusing it
+    // here makes the glow a ring that travels outward with the wave instead.
+    color += exp(-gridThickness * smoothB.x * (0.8 + 0.5 * func));
     color += exp(-gridThickness * smoothB.y);
     color += 0.5 * exp(-(gridThickness / 4.0) * sin(smoothB.x));
     color += 0.5 * exp(-(gridThickness / 3.0) * smoothB.y);
