@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AnimatePresence,
   motion,
   useInView,
   useMotionValue,
@@ -10,7 +11,7 @@ import {
   useTransform,
   type PanInfo,
 } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
@@ -236,54 +237,116 @@ export function Magnetic() {
 
 /* --------------------------------------------------------------------- */
 
+const BUBBLE_DEFS = [
+  { cls: "left-[4%] top-[16%] h-44 w-44", dx: "46px", dy: "82px", dur: "17s", delay: "0s", o: 0.8 },
+  { cls: "right-[8%] top-[10%] h-28 w-28", dx: "-38px", dy: "76px", dur: "13s", delay: "-4s", o: 0.7 },
+  { cls: "left-[34%] bottom-[18%] h-20 w-20", dx: "30px", dy: "62px", dur: "11s", delay: "-7s", o: 0.62 },
+  { cls: "right-[26%] bottom-[26%] h-14 w-14", dx: "-26px", dy: "54px", dur: "9s", delay: "-2s", o: 0.55 },
+  { cls: "left-[18%] top-[58%] h-10 w-10", dx: "22px", dy: "44px", dur: "8s", delay: "-5s", o: 0.5 },
+  { cls: "right-[2%] top-[46%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "74px", dur: "21s", delay: "-9s", o: 0.42 },
+];
+
 export function Bubbles() {
   /* Viewport-fixed, not parented to the hero. An absolutely positioned layer
      scrolls up through the sticky nav and gets hard-clipped along the pill's
      edge — frosting the nav does not help, a pale sphere behind 62% white and
      an 18px blur is simply gone. Fixed to the viewport instead, with a mask
-     that is fully transparent across the nav band, so a bubble fades out
-     before it can reach it. Opacity is driven by scroll so the whole layer
-     retires with the hero rather than following you down the page. */
-  const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 420, 780], [1, 0.85, 0]);
+     that is fully transparent across the nav band, so a bubble is gone
+     before it can reach it either way it leaves. */
+  const [popped, setPopped] = useState<Set<number>>(() => new Set());
+  const poppedRef = useRef(popped);
+  poppedRef.current = popped;
+  const scrollPoppedRef = useRef(false);
+  const elsRef = useRef<(HTMLElement | null)[]>([]);
+  const reduced = useReducedMotion();
 
-  const bubbles = [
-    { cls: "left-[4%] top-[16%] h-44 w-44", dx: "46px", dy: "82px", dur: "17s", delay: "0s", o: 0.8 },
-    { cls: "right-[8%] top-[10%] h-28 w-28", dx: "-38px", dy: "76px", dur: "13s", delay: "-4s", o: 0.7 },
-    { cls: "left-[34%] bottom-[18%] h-20 w-20", dx: "30px", dy: "62px", dur: "11s", delay: "-7s", o: 0.62 },
-    { cls: "right-[26%] bottom-[26%] h-14 w-14", dx: "-26px", dy: "54px", dur: "9s", delay: "-2s", o: 0.55 },
-    { cls: "left-[18%] top-[58%] h-10 w-10", dx: "22px", dy: "44px", dur: "8s", delay: "-5s", o: 0.5 },
-    { cls: "right-[2%] top-[46%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "74px", dur: "21s", delay: "-9s", o: 0.42 },
-  ];
+  const pop = useCallback((i: number) => {
+    setPopped((prev) => (prev.has(i) ? prev : new Set(prev).add(i)));
+  }, []);
+
+  // Bubbles sit at z-0, behind the page's own copy and buttons, on purpose —
+  // raising them to receive real clicks would mean rendering them in front
+  // of readable text. So a click never reaches the bubble element itself:
+  // whatever section is painted over it always wins the DOM hit test, even
+  // across its own empty background. Popping is checked manually instead —
+  // any click that did not land on a real control is tested against each
+  // surviving bubble's current on-screen circle (its float animation moves
+  // it, so this reads the live rect, not the resting position) and popped if
+  // it falls inside.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("a, button, input, textarea, select, [role='button']")) return;
+      elsRef.current.forEach((el, i) => {
+        if (!el || poppedRef.current.has(i)) return;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const radius = r.width / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        if (dx * dx + dy * dy <= radius * radius) pop(i);
+      });
+    };
+    window.addEventListener("click", onClick);
+    return () => window.removeEventListener("click", onClick);
+  }, [pop]);
+
+  // Popping replaces fading, not just at the click — scroll past the hero
+  // and whatever bubbles are still up there pop too, once, rather than
+  // dissolving together as a group the way the old opacity ramp did.
+  const { scrollY } = useScroll();
+  useEffect(() => {
+    return scrollY.on("change", (v) => {
+      if (v < 560 || scrollPoppedRef.current) return;
+      scrollPoppedRef.current = true;
+      BUBBLE_DEFS.forEach((_, i) => {
+        if (!poppedRef.current.has(i)) {
+          setTimeout(() => pop(i), i * 55);
+        }
+      });
+    });
+  }, [scrollY, pop]);
 
   const fade =
     "linear-gradient(to bottom, transparent 0px, transparent 84px, rgba(0,0,0,.55) 130px, #000 190px)";
 
   return (
-    <motion.div
+    <div
       aria-hidden
-      style={{
-        opacity,
-        maskImage: fade,
-        WebkitMaskImage: fade,
-      }}
+      style={{ maskImage: fade, WebkitMaskImage: fade }}
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
-      {bubbles.map((b, i) => (
-        <span
-          key={i}
-          className={`bubble ${b.cls}`}
-          style={
-            {
-              "--dx": b.dx,
-              "--dy": b.dy,
-              "--dur": b.dur,
-              animationDelay: b.delay,
-              opacity: b.o,
-            } as React.CSSProperties
-          }
-        />
-      ))}
-    </motion.div>
+      <AnimatePresence>
+        {BUBBLE_DEFS.map((b, i) =>
+          popped.has(i) ? null : (
+            <motion.span
+              key={i}
+              ref={(el) => {
+                elsRef.current[i] = el;
+              }}
+              // a puff on the way out rather than a straight fade — up
+              // slightly, then collapse — reads as burst instead of dissolve
+              exit={
+                reduced
+                  ? { opacity: 0 }
+                  : { opacity: [1, 1, 0], scale: [1, 1.16, 0.2] }
+              }
+              transition={{ duration: reduced ? 0.1 : 0.32, ease: EASE_OUT, times: reduced ? undefined : [0, 0.35, 1] }}
+              className={`bubble ${b.cls}`}
+              style={
+                {
+                  "--dx": b.dx,
+                  "--dy": b.dy,
+                  "--dur": b.dur,
+                  animationDelay: b.delay,
+                  opacity: b.o,
+                } as React.CSSProperties
+              }
+            />
+          )
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

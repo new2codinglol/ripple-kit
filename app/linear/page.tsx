@@ -1,18 +1,16 @@
 import { Landing } from "../_c/Landing";
 import { LinearBackdrop } from "../_c/LinearBackdrop";
-import { Iridescence } from "../_c/Iridescence";
 
 /* The Linear brief applied to the same content. No Bubbles: the brief allows
-   no decorative gradients, and the spheres are nothing else. The field is
-   React Bits' RippleGrid instead — a precision grid that ripples, which is
-   both the register the brief asks for and the product's own name. */
+   no decorative gradients, and the spheres are nothing else. The field used
+   to be React Bits' RippleGrid — a warped grid standing in for the product's
+   name — and before that a near-black shader wash under it. Both are gone;
+   LinearBackdrop is now a field of literal hairline ripples, which the brief
+   already asks for on its own terms (rings in place of shadows) and needs no
+   metaphor to justify. */
 export default function Page() {
   return (
     <div data-skin="linear" className="ground relative">
-      {/* The gradient ground under the grid. Pulled almost to nothing in the
-          void tone, because the brief allows no decorative gradient — what
-          survives is a slow luminance wash the grid sits on. */}
-      <Iridescence tone="void" />
       <LinearBackdrop />
       <Landing />
     </div>
