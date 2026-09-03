@@ -25,22 +25,39 @@ import { useEffect, useRef } from "react";
    No lime anywhere here — the brief reserves the single chromatic accent for
    the CTA, never the field. Rings are mist at low alpha, fading to nothing.
 
-   The rings alone read as line art sitting on a flat void — a background
-   that does not answer back to the thing disturbing it. A soft radial glow
-   now follows the raw cursor position underneath the rings (unthrottled, so
-   it tracks smoothly rather than in the same 220ms steps as the rings), and
-   its brightness is not fixed: every ring drop — move or click — adds a
-   pulse of "energy" that decays each frame, so the glow visibly breathes in
-   time with the ripples rather than just marking where the pointer is. Still
-   monochrome, still no lime — a slow luminance wash is the one kind of
-   gradient the brief's own void-tone precedent already allowed. */
+   Three layers, composed rather than stacked:
+
+   1. A static gradient, CSS on the canvas element itself rather than drawn —
+      it never changes, so there is nothing to gain from redrawing it 60
+      times a second. Off-centre, like one distant light on still water
+      rather than a flat void behind the rings.
+   2. The cursor-linked glow, drawn each frame, is what makes the gradient a
+      background rather than a poster: it follows the raw cursor position
+      (unthrottled, so it tracks smoothly rather than in the rings' 220ms
+      steps) and its brightness is not fixed — every ring drop, move or
+      click, adds a pulse of "energy" that decays each frame, so the surface
+      visibly warms with activity instead of just marking where the pointer
+      is. This is the thing that makes layer 1 a gradient the cursor
+      disturbs rather than a gradient sitting under an unrelated ripple.
+   3. The rings, on top, exactly as before.
+
+   Still monochrome throughout, still no lime — a slow luminance wash is the
+   one kind of gradient the brief's own void-tone precedent already allowed,
+   and composing it with the ripple's own energy value is what keeps a
+   second effect from reading as two unrelated decisions stacked on the same
+   route. */
 
 type Ring = { x: number; y: number; born: number; life: number; peak: number; width: number };
 
 const LIFE_MS = 1500;
-const GLOW_RADIUS = 420;
-const GLOW_BASE = 0.028;
-const GLOW_ENERGY_MAX = 0.1;
+const GLOW_RADIUS = 600;
+const GLOW_BASE = 0.02;
+const GLOW_ENERGY_MAX = 0.11;
+
+// Off-centre and grey throughout — no chroma, matching the rings. Reads as
+// one light source on a dark surface rather than a flat void.
+const BASE_GRADIENT =
+  "radial-gradient(135% 105% at 80% -10%, #1a1d21 0%, #101214 36%, #08090a 70%)";
 
 export function LinearBackdrop() {
   const reduced = useReducedMotion();
@@ -118,7 +135,12 @@ export function LinearBackdrop() {
       if (c) {
         const alpha = Math.min(GLOW_BASE + GLOW_ENERGY_MAX, GLOW_BASE + energyRef.current * GLOW_ENERGY_MAX);
         const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, GLOW_RADIUS);
+        // three stops, not two — a flat mist-to-transparent circle reads as
+        // a spotlight laid over the gradient; a mist centre falling through
+        // a graphite mid-tone before it clears reads as the gradient itself
+        // warming, which is the point of tying it to the same surface.
         grad.addColorStop(0, `rgba(208, 214, 224, ${alpha})`);
+        grad.addColorStop(0.45, `rgba(120, 128, 140, ${alpha * 0.4})`);
         grad.addColorStop(1, "rgba(208, 214, 224, 0)");
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
@@ -150,13 +172,19 @@ export function LinearBackdrop() {
     };
   }, [reduced]);
 
-  if (reduced) return null;
+  // Reduced motion keeps the gradient — it is not motion, nothing on it
+  // moves without a frame loop — and drops the canvas, so the ripple and its
+  // glow are what disappear, same as before.
+  if (reduced) {
+    return <div aria-hidden className="fixed inset-0 z-0" style={{ background: BASE_GRADIENT }} />;
+  }
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0"
+      style={{ background: BASE_GRADIENT }}
     />
   );
 }
