@@ -173,18 +173,74 @@ body {
   62%  { transform: translate3d(calc(var(--dx) * -1), calc(var(--dy) * -0.4), 0) scale(0.95); }
   100% { transform: translate3d(0, 0, 0) scale(1); }
 }
+
+/* Liquid Glass, not pearl. Second pass on the bubbles: rather than an opaque
+   painted sphere (a radial gradient standing in for light), each bubble now
+   actually is a lens — backdrop-filter blurs and lifts the saturation of the
+   Aero ground and the shader moving behind it, so what you see through the
+   glass is genuinely the page, warmed by the sand ground rather than a
+   colour picked to imitate that. Depth comes from four stacked shadows (rim,
+   body falloff, a lower inner shadow for concavity, an outer drop shadow)
+   rather than a single radial fill, and two pseudo-elements carry the
+   specular highlight — a soft glancing arc plus one hard point-glint — the
+   two marks real glass always has and a flat gradient never does.
+
+   ponytail: no true refraction (an SVG feDisplacementMap bent through
+   backdrop-filter would warp the background inside the circle, not just
+   blur it) — that combination's browser support is still patchy enough in
+   2026 to risk a broken bubble on one engine. Blur+saturate+highlights reads
+   as glass at this size without the risk; revisit if backdrop-filter's
+   filter-reference support solidifies. */
 .bubble {
   --dx: 40px;
   --dy: 80px;
   position: absolute;
+  overflow: hidden;
   border-radius: 999px;
-  background: radial-gradient(at 30% 26%, rgba(255, 255, 255, 0.98), rgba(var(--p-bub-mid), 0.6) 44%, rgba(var(--p-bub-out), 0.2) 74%);
+  /* a hair of cool cast under the white, the way real glass has a faint
+     blue-cyan sheen rather than reading as pure frost — and enough body that
+     the rim reads against a ground this pale, which pure rgba(255,255,255,.1)
+     did not. */
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.22), rgba(214, 226, 234, 0.08));
+  -webkit-backdrop-filter: blur(9px) saturate(1.7) brightness(1.08);
+  backdrop-filter: blur(9px) saturate(1.7) brightness(1.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   box-shadow:
-    0 26px 60px -26px rgba(var(--p-bub-shadow), 0.55),
-    inset -6px -10px 22px -12px rgba(var(--p-bub-out), 0.5);
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95),
+    inset 0 -12px 18px -9px rgba(255, 255, 255, 0.22),
+    inset 0 16px 22px -15px rgba(var(--p-bub-shadow), 0.55),
+    0 26px 50px -22px rgba(var(--p-bub-shadow), 0.65);
   animation: float var(--dur, 16s) var(--ease-in-out) infinite;
   will-change: transform;
   pointer-events: none;
+}
+
+/* the glancing highlight — a soft bright arc where the light source would
+   catch a curved surface */
+.bubble::before {
+  content: "";
+  position: absolute;
+  inset: 9% auto auto 12%;
+  width: 50%;
+  height: 32%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0) 72%);
+  filter: blur(0.5px);
+  opacity: 0.95;
+}
+
+/* the point-glint — small, crisp, the mark that reads as glass rather than
+   plastic at a glance */
+.bubble::after {
+  content: "";
+  position: absolute;
+  top: 14%;
+  left: 20%;
+  width: 15%;
+  height: 15%;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
 }
 
 @keyframes rise {
