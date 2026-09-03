@@ -1,13 +1,17 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Inter, tried at the user's request after two rounds of avoiding it —
-     both because it is the "safe default" the deck's own AI-slop checklist
-     warns against, and because /linear already uses Inter to mark itself as
-     a foreign brief. Sharing the family with /linear again means the two
-     routes now differ only in weight cap and grammar, not typeface. */
-  --font-sans: var(--font-inter), ui-sans-serif, "Segoe UI", system-ui, sans-serif;
+  /* Third pass. Manrope carries body copy, buttons and card titles — warm
+     without Nunito's bubble, neutral without being Inter. DM Serif Display is
+     new: a serif for the display headlines only (h1 and the four section h2s),
+     via .font-display below, not blanket across the page — it ships one
+     weight, so putting it on small bold labels and buttons would fake-bold
+     ugly rather than read as a deliberate weight-of-one choice. */
+  --font-sans: var(--font-manrope), ui-sans-serif, "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-dm-serif), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-mono-jb), ui-monospace, monospace;
+
+  --font-weight-black: 800;   /* Manrope tops out at 800, not 900 */
 
   /* Near-black ink, not blue-grey. Pale type on a pale ground was the whole
      problem — body copy went from about 4.8:1 to 13:1 on this change. */
@@ -49,6 +53,10 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
+
+/* Serif display headlines only — h1 and the section h2s. One weight, so no
+   fake-bold; size and leading do the work instead. */
+.font-display { font-family: var(--font-display); font-weight: 400; }
 
 html {
   scroll-behavior: smooth;
