@@ -114,7 +114,7 @@ export function Landing() {
           </p>
 
           <h1
-            className="rise mt-6 text-[2.6rem] font-black leading-[0.98] tracking-[-0.03em] sm:text-6xl"
+            className="rise font-display mt-6 text-[2.8rem] leading-[1.04] tracking-[-0.005em] sm:text-6xl"
             style={{ animationDelay: "60ms" }}
           >
             The gesture code you keep
@@ -155,7 +155,7 @@ export function Landing() {
       <section id="demos" className="px-4 py-16">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
+            <h2 className="font-display text-2xl tracking-tight sm:text-3xl">
               Three of them, running right here.
             </h2>
             <p className="mt-2 max-w-xl text-ink-soft">
@@ -186,7 +186,7 @@ export function Landing() {
       <section id="primitives" className="px-4 py-16">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
+            <h2 className="font-display text-2xl tracking-tight sm:text-3xl">
               Nine hooks. Six worth naming.
             </h2>
             <p className="mt-2 max-w-xl text-ink-soft">
@@ -218,7 +218,7 @@ export function Landing() {
       <section id="code" className="px-4 py-16">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
+            <h2 className="font-display text-2xl tracking-tight sm:text-3xl">
               What a dismissable card costs you.
             </h2>
           </Reveal>
@@ -277,7 +277,7 @@ return <div {...card} className="card" />;`}
       <section className="px-4 py-16">
         <Reveal className="mx-auto max-w-3xl">
           <div className="glass gloss relative overflow-hidden rounded-[34px] px-6 py-12 text-center">
-            <h2 className="relative z-10 text-3xl font-black tracking-tight sm:text-4xl">
+            <h2 className="font-display relative z-10 text-3xl tracking-tight sm:text-4xl">
               Stop shipping motion you had to guess at.
             </h2>
             <p className="relative z-10 mx-auto mt-3 max-w-md text-ink-soft">
