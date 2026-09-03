@@ -246,6 +246,66 @@ const BUBBLE_DEFS = [
   { cls: "right-[2%] top-[46%] h-36 w-36 blur-[2px]", dx: "-52px", dy: "74px", dur: "21s", delay: "-9s", o: 0.42 },
 ];
 
+// A soap bubble does not just vanish — it throws off a scatter of droplets
+// as the film tears. One shockwave ring plus a handful of droplets flung
+// outward and slightly down (a hint of gravity, not real physics), fired at
+// the popped bubble's last on-screen position and centre so it lands where
+// the bubble actually was mid-float, not its resting slot.
+function BubbleBurst({
+  x,
+  y,
+  size,
+  onDone,
+}: {
+  x: number;
+  y: number;
+  size: number;
+  onDone: () => void;
+}) {
+  const reduced = useReducedMotion();
+  const droplets = useRef(
+    reduced
+      ? []
+      : Array.from({ length: 6 }, (_, i) => {
+          const angle = (i / 6) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
+          const dist = size * (0.5 + Math.random() * 0.45);
+          return {
+            tx: Math.cos(angle) * dist,
+            ty: Math.sin(angle) * dist + size * 0.22, // settles downward
+            s: 3 + Math.random() * 3,
+            delay: Math.random() * 0.03,
+          };
+        })
+  ).current;
+
+  return (
+    <div className="pointer-events-none fixed z-[1]" style={{ left: x, top: y }} aria-hidden>
+      <motion.span
+        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/70"
+        style={{ width: size, height: size }}
+        initial={{ opacity: 0.8, scale: 0.55 }}
+        animate={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.55 }}
+        transition={{ duration: reduced ? 0.12 : 0.46, ease: EASE_OUT }}
+        onAnimationComplete={onDone}
+      />
+      {droplets.map((d, i) => (
+        <motion.span
+          key={i}
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
+          // sand is a pale, low-contrast ground — the same reason the glass
+          // bubbles needed a real rim rather than a bare white fill. A small
+          // shadow gives each droplet an edge to read against instead of
+          // dissolving into the ground the instant it leaves the burst.
+          style={{ width: d.s, height: d.s, boxShadow: "0 1px 3px rgba(84, 70, 50, 0.35)" }}
+          initial={{ opacity: 1, x: 0, y: 0 }}
+          animate={{ opacity: 0, x: d.tx, y: d.ty }}
+          transition={{ duration: 0.5, delay: d.delay, ease: EASE_OUT }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function Bubbles() {
   /* Viewport-fixed, not parented to the hero. An absolutely positioned layer
      scrolls up through the sticky nav and gets hard-clipped along the pill's
@@ -256,12 +316,52 @@ export function Bubbles() {
   const [popped, setPopped] = useState<Set<number>>(() => new Set());
   const poppedRef = useRef(popped);
   poppedRef.current = popped;
-  const scrollPoppedRef = useRef(false);
   const elsRef = useRef<(HTMLElement | null)[]>([]);
   const reduced = useReducedMotion();
 
-  const pop = useCallback((i: number) => {
-    setPopped((prev) => (prev.has(i) ? prev : new Set(prev).add(i)));
+  const [bursts, setBursts] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
+  const burstIdRef = useRef(0);
+  const removeBurst = useCallback((id: number) => {
+    setBursts((prev) => prev.filter((b) => b.id !== id));
+  }, []);
+
+  // A click-popped bubble comes back on its own after a while — a field that
+  // only ever empties would stop being a field. A scroll-hidden one does not
+  // get a timer at all; it is not gone, just off past the hero, and comes
+  // back the instant you scroll back up (handled below). respawns tracks
+  // which indices currently have a pending timer, which is also how the
+  // scroll handler tells "popped by me" apart from "popped by a click".
+  const respawns = useRef<Record<number, number>>({});
+
+  const pop = useCallback((i: number, opts?: { respawn?: boolean }) => {
+    setPopped((prev) => {
+      if (prev.has(i)) return prev;
+      const el = elsRef.current[i];
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const id = burstIdRef.current++;
+        setBursts((b) => [...b, { id, x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width }]);
+      }
+      return new Set(prev).add(i);
+    });
+    if (opts?.respawn !== false) {
+      const delay = 4200 + Math.random() * 5200;
+      respawns.current[i] = window.setTimeout(() => {
+        delete respawns.current[i];
+        setPopped((prev) => {
+          if (!prev.has(i)) return prev;
+          const next = new Set(prev);
+          next.delete(i);
+          return next;
+        });
+      }, delay);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      Object.values(respawns.current).forEach((id) => clearTimeout(id));
+    };
   }, []);
 
   // Bubbles sit at z-0, behind the page's own copy and buttons, on purpose —
@@ -293,18 +393,34 @@ export function Bubbles() {
   }, [pop]);
 
   // Popping replaces fading, not just at the click — scroll past the hero
-  // and whatever bubbles are still up there pop too, once, rather than
-  // dissolving together as a group the way the old opacity ramp did.
+  // and whatever bubbles are still up there pop too, staggered, rather than
+  // dissolving together as a group the way the old opacity ramp did. Unlike
+  // a click, this is reversible: scroll back up and anything the scroll
+  // itself hid (no respawn timer registered) comes straight back, while a
+  // bubble a click sent away keeps waiting out its own timer regardless of
+  // where the page happens to be scrolled to.
   const { scrollY } = useScroll();
+  const aboveRef = useRef(true);
   useEffect(() => {
     return scrollY.on("change", (v) => {
-      if (v < 560 || scrollPoppedRef.current) return;
-      scrollPoppedRef.current = true;
-      BUBBLE_DEFS.forEach((_, i) => {
-        if (!poppedRef.current.has(i)) {
-          setTimeout(() => pop(i), i * 55);
-        }
-      });
+      const above = v < 560;
+      if (above === aboveRef.current) return;
+      aboveRef.current = above;
+      if (!above) {
+        BUBBLE_DEFS.forEach((_, i) => {
+          if (!poppedRef.current.has(i)) {
+            setTimeout(() => pop(i, { respawn: false }), i * 55);
+          }
+        });
+      } else {
+        setPopped((prev) => {
+          const next = new Set(prev);
+          prev.forEach((i) => {
+            if (!(i in respawns.current)) next.delete(i);
+          });
+          return next;
+        });
+      }
     });
   }, [scrollY, pop]);
 
@@ -312,41 +428,62 @@ export function Bubbles() {
     "linear-gradient(to bottom, transparent 0px, transparent 84px, rgba(0,0,0,.55) 130px, #000 190px)";
 
   return (
-    <div
-      aria-hidden
-      style={{ maskImage: fade, WebkitMaskImage: fade }}
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
-    >
-      <AnimatePresence>
-        {BUBBLE_DEFS.map((b, i) =>
-          popped.has(i) ? null : (
-            <motion.span
-              key={i}
-              ref={(el) => {
-                elsRef.current[i] = el;
-              }}
-              // a puff on the way out rather than a straight fade — up
-              // slightly, then collapse — reads as burst instead of dissolve
-              exit={
-                reduced
-                  ? { opacity: 0 }
-                  : { opacity: [1, 1, 0], scale: [1, 1.16, 0.2] }
-              }
-              transition={{ duration: reduced ? 0.1 : 0.32, ease: EASE_OUT, times: reduced ? undefined : [0, 0.35, 1] }}
-              className={`bubble ${b.cls}`}
-              style={
-                {
-                  "--dx": b.dx,
-                  "--dy": b.dy,
-                  "--dur": b.dur,
-                  animationDelay: b.delay,
+    <>
+      <div
+        aria-hidden
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      >
+        <AnimatePresence>
+          {BUBBLE_DEFS.map((b, i) =>
+            popped.has(i) ? null : (
+              <motion.span
+                key={i}
+                ref={(el) => {
+                  elsRef.current[i] = el;
+                }}
+                // grows in on (re)appearance rather than snapping to full
+                // size — a bubble forming, whether that is the field
+                // refilling on its own or scrolling back to reveal it.
+                // Enter and exit run on different curves (a slower grow, a
+                // faster burst), so each carries its own transition rather
+                // than sharing one at the top level — a shared transition's
+                // 3-value "times" for the exit keyframes would otherwise get
+                // applied to enter's plain two-value tween too.
+                initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.35 }}
+                animate={{
                   opacity: b.o,
-                } as React.CSSProperties
-              }
-            />
-          )
-        )}
-      </AnimatePresence>
-    </div>
+                  scale: 1,
+                  transition: { duration: reduced ? 0.1 : 0.5, ease: EASE_OUT },
+                }}
+                // a puff on the way out rather than a straight fade — up
+                // slightly, then collapse — reads as burst instead of dissolve
+                exit={
+                  reduced
+                    ? { opacity: 0, transition: { duration: 0.1, ease: EASE_OUT } }
+                    : {
+                        opacity: [1, 1, 0],
+                        scale: [1, 1.16, 0.2],
+                        transition: { duration: 0.32, ease: EASE_OUT, times: [0, 0.35, 1] },
+                      }
+                }
+                className={`bubble ${b.cls}`}
+                style={
+                  {
+                    "--dx": b.dx,
+                    "--dy": b.dy,
+                    "--dur": b.dur,
+                    animationDelay: b.delay,
+                  } as React.CSSProperties
+                }
+              />
+            )
+          )}
+        </AnimatePresence>
+      </div>
+      {bursts.map((b) => (
+        <BubbleBurst key={b.id} x={b.x} y={b.y} size={b.size} onDone={() => removeBurst(b.id)} />
+      ))}
+    </>
   );
 }
