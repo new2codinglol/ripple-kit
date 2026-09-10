@@ -1,11 +1,44 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
 import {
   CopyInstall,
   DragToDismiss,
+  EASE_OUT,
   Magnetic,
   Reveal,
   ScrollRing,
 } from "./Demos";
 import { Mechanism } from "./Mechanism";
+
+const heroContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+const heroItem = {
+  hidden: { opacity: 0, y: 14 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: EASE_OUT },
+  },
+};
+
+const heroItemReduced = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.5, ease: EASE_OUT } },
+};
+
+const heroCta = {
+  hidden: { opacity: 0, y: 14, scale: 0.97 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.5, ease: EASE_OUT },
+  },
+};
 
 const PRIMITIVES = [
   {
@@ -72,6 +105,10 @@ function Logo({ className = "" }: { className?: string }) {
 }
 
 export function Landing() {
+  const reduced = useReducedMotion();
+  const item = reduced ? heroItemReduced : heroItem;
+  const cta = reduced ? heroItemReduced : heroCta;
+
   return (
     <div className="relative z-10">
       {/* ---------------------------------------------------------- nav */}
@@ -107,48 +144,56 @@ export function Landing() {
 
       {/* --------------------------------------------------------- hero */}
       <section id="top" className="relative px-4 pb-20 pt-16 sm:pt-24">
-        <div className="relative mx-auto max-w-3xl text-center">
-          <p className="rise glass-dim mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold">
+        <motion.div
+          className="relative mx-auto max-w-3xl text-center"
+          variants={heroContainer}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.p
+            variants={item}
+            className="glass-dim mx-auto inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold"
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-mint" />
             v2.4 — sheet snapping is in
-          </p>
+          </motion.p>
 
-          <h1
-            className="rise font-display mt-6 text-[2.8rem] leading-[1.04] tracking-[-0.005em] sm:text-6xl"
-            style={{ animationDelay: "60ms" }}
+          <motion.h1
+            variants={item}
+            className="font-display mt-6 text-[2.8rem] leading-[1.04] tracking-[-0.005em] sm:text-6xl"
           >
             The gesture code you keep
             <br />
             rewriting, already correct.
-          </h1>
+          </motion.h1>
 
-          <p
-            className="rise mx-auto mt-6 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg"
-            style={{ animationDelay: "120ms" }}
+          <motion.p
+            variants={item}
+            className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg"
           >
             Nine React hooks for drag, scroll and press. Interruptible springs, ease-out on
             everything that enters, nothing over 300 ms, and reduced-motion handled before you
             ask. 9 kB for the whole set.
-          </p>
+          </motion.p>
 
-          <div
+          <motion.div
             id="install"
-            className="rise mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
-            style={{ animationDelay: "180ms" }}
+            variants={cta}
+            className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <CopyInstall command="npm i ripplekit" />
             <a href="#demos" className="btn glass-dim px-5 py-3 text-sm font-extrabold">
               See it move
             </a>
-          </div>
+          </motion.div>
 
-          <p
-            className="rise mt-5 font-mono text-xs text-ink-soft"
-            style={{ animationDelay: "240ms" }}
+          <motion.p
+            variants={item}
+            className="mt-5 font-mono text-xs text-ink-soft"
           >
             React 18+ · zero peer deps · MIT
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </section>
 
       {/* -------------------------------------------------------- demos */}
